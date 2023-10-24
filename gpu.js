@@ -129,13 +129,13 @@ window.addEventListener('keydown', (event) => {
         case "KeyS":
             params[3] += params[4] * 0.02;
             break;
-        case "KeyQ":
+        case "KeyE":
             let smallerSpan = params[4] * 0.97;
             params[2] += smallerSpan * 0.015;
             params[3] += smallerSpan * 0.015;
             params[4] = smallerSpan;
             break;
-        case "KeyE":
+        case "KeyQ":
             let largerSpan = params[4] * 1.03;
             params[2] -= largerSpan * 0.015;
             params[3] -= largerSpan * 0.015;

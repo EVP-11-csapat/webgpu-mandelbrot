@@ -49,7 +49,7 @@ const vertexBufferLayout = {
 const params = new Float32Array([
     canvas.width, canvas.height,
     -2.0, -1.5, 3.0,
-    (1.0 / 255)
+    255.0
 ])
 
 const uniformBuffer = device.createBuffer({
@@ -142,11 +142,11 @@ window.addEventListener('keydown', (event) => {
             params[4] = largerSpan;
             break;
         case "ArrowUp":
-            params[5] = params[5] * 0.95;
-            break
+            params[5] = params[5] * 1.1;
+            break;
         case "ArrowDown":
-            params[5] = params[5] * 1.05;
-            break
+            params[5] = params[5] * 0.9;
+            break;
     }
     device.queue.writeBuffer(uniformBuffer, 0, params);
     render();

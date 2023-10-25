@@ -4,7 +4,7 @@ struct Params{
     left : f32,
     top : f32,
     span : f32,
-    colorStep : f32
+    maxIterations : f32
 }
 
 @group(0) @binding(0) var<uniform> params: Params;
@@ -27,13 +27,23 @@ fn fragmentMain(@builtin(position) pixelPosition: vec4f) -> @location(0) vec4f {
     var z : vec2f;
     z.x = c.x;
     z.y = c.y;
-    var color : f32 = 0.0;
-    while((z.x * z.x + z.y * z.y) < 4 && color < 1){
+    var iters : i32 = 0;
+    while((z.x * z.x + z.y * z.y) < 4 && iters < i32(params.maxIterations)){
         var temp = z.x * z.x - z.y * z.y + c.x;
         z.y = 2.0 * z.x * z.y + c.y;
         z.x = temp;
-        color += params.colorStep;
+        iters += 1;
     }
 
-    return vec4f(color, color * 16, color * 32, 1);
+    var red : f32 = f32(iters % 32) / 32.0;
+    var green : f32 = f32(iters % 64) / 64.0;
+    var blue : f32 = f32(iters % 128) / 128.0;
+
+    if (iters == i32(params.maxIterations)){
+        red = 1.0;
+        green = 1.0;
+        blue = 1.0;
+    }
+
+    return vec4f(red, green, blue, 1);
 }

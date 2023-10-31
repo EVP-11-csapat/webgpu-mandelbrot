@@ -16,27 +16,24 @@ fn vertexMain(@location(0) pos: vec2f) -> @builtin(position) vec4f {
 
 @fragment
 fn fragmentMain(@builtin(position) pixelPosition: vec4f) -> @location(0) vec4f {
-    var pos : vec2f;
-    pos.x = (pixelPosition.x / params.canvasWidth) * params.span + params.left;
-    pos.y = (pixelPosition.y / params.canvasHeight) * params.span + params.top;
+    var posX : fp64 = sum64(mul64(twoProd(pixelPosition.x, 1.0 / params.canvasWidth), split64(params.span)), split64(params.left));
+    var posY : fp64 = sum64(mul64(twoProd(pixelPosition.y, 1.0 / params.canvasHeight), split64(params.span)), split64(params.top));
 
-    var c : vec2f;
-    c.x = pos.x;
-    c.y = pos.y;
+    var cX : fp64 = posX;
+    var cY : fp64 = posY;
 
-    var z : vec2f;
-    z.x = c.x;
-    z.y = c.y;
+    var zX = cX;
+    var zY = cY;
     var iters : i32 = 0;
-    while((z.x * z.x + z.y * z.y) < 4 && iters < i32(params.maxIterations)){
-        var temp = z.x * z.x - z.y * z.y + c.x;
-        z.y = 2.0 * z.x * z.y + c.y;
-        z.x = temp;
+    while(sub64(sum64(mul64(zX, zX), mul64(zY, zY)), split64(4.0)).high < 0.0 && iters < i32(params.maxIterations)){
+        var temp : fp64 = sum64(sub64(mul64(zX, zX), mul64(zY, zY)), cX);
+        zY = sum64(mul64(split64(2.0), mul64(zX, zY)), cY);
+        zX = temp;
         iters += 1;
     }
 
-    var red : f32 = f32(iters % 32) / 32.0;
-    var green : f32 = f32(iters % 64) / 64.0;
+    var red : f32 = f32(iters % 64) / 32.0;
+    var green : f32 = f32(iters % 96) / 64.0;
     var blue : f32 = f32(iters % 128) / 128.0;
 
     if (iters == i32(params.maxIterations)){

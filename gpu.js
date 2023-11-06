@@ -1,4 +1,6 @@
 const canvas = document.querySelector("canvas");
+canvas.width = window.innerHeight
+canvas.height = window.innerHeight
 
 if (!navigator.gpu) {
     throw new Error("WebGPU not supported on this browser.");
@@ -122,11 +124,11 @@ function render() {
 }
 
 function split64(a) {
-    const MAGIC = Math.pow(2, 26) + 1;
-    let c = MAGIC * a;
-    let a_hi = c - (c - a);
-    let a_lo = a - a_hi;
-    return {high: a_hi, low: a_lo};
+
+    const high = Math.fround(a)
+    const low = a - high
+
+    return { low: low, high: high };
 }
 
 window.addEventListener('keydown', (event) => {
@@ -173,8 +175,19 @@ window.addEventListener('keydown', (event) => {
     params[6] = newSpan.high
     params[7] = newSpan.low
 
-    device.queue.writeBuffer(uniformBuffer, 0, params);
-    render();
+    device.queue.writeBuffer(uniformBuffer, 0, params)
+    render()
 })
+
+addEventListener("resize", (event) => {
+    canvas.width = window.innerHeight
+    canvas.height = window.innerHeight
+
+    params[0] = canvas.width
+    params[1] = canvas.height
+
+    device.queue.writeBuffer(uniformBuffer, 0, params)
+    render()
+});
 
 render();

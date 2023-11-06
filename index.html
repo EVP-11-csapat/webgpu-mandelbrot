@@ -3,10 +3,11 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>WebGPU Mandelbrot set</title>
     </head>
-    <body>
-        <canvas width="800" height="800"></canvas>
+    <body style="margin: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; background-color: black">
+        <canvas width="1000" height="1000"></canvas>
 <!--        <h1 id="fps">0</h1>-->
         <script type="module" src="gpu.js"></script>
     </body>

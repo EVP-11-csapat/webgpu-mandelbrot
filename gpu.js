@@ -46,9 +46,15 @@ const vertexBufferLayout = {
     }],
 };
 
+const jsParams = {
+    left: -2.0,
+    top: -1.5,
+    span: 3.0
+}
+
 const params = new Float32Array([
     canvas.width, canvas.height,
-    -2.0, -1.5, 3.0,
+    -2.0, 0, -1.5, 0, 3.0, 0,
     255.0
 ])
 
@@ -115,39 +121,58 @@ function render() {
     device.queue.submit([commandBuffer]);
 }
 
+function split64(a) {
+    const MAGIC = Math.pow(2, 26) + 1;
+    let c = MAGIC * a;
+    let a_hi = c - (c - a);
+    let a_lo = a - a_hi;
+    return {high: a_hi, low: a_lo};
+}
+
 window.addEventListener('keydown', (event) => {
     switch (event.code) {
         case "KeyA":
-            params[2] -= params[4] * 0.02;
+            jsParams.left -= jsParams.span * 0.02
             break;
         case "KeyD":
-            params[2] += params[4] * 0.02;
+            jsParams.left += jsParams.span * 0.02
             break;
         case "KeyW":
-            params[3] -= params[4] * 0.02;
+            jsParams.top -= jsParams.span * 0.02
             break;
         case "KeyS":
-            params[3] += params[4] * 0.02;
+            jsParams.top += jsParams.span * 0.02
             break;
         case "KeyE":
-            let smallerSpan = params[4] * 0.97;
-            params[2] += smallerSpan * 0.015;
-            params[3] += smallerSpan * 0.015;
-            params[4] = smallerSpan;
+            jsParams.span = jsParams.span * 0.97;
+            jsParams.left += jsParams.span * 0.015;
+            jsParams.top += jsParams.span * 0.015;
             break;
         case "KeyQ":
-            let largerSpan = params[4] * 1.03;
-            params[2] -= largerSpan * 0.015;
-            params[3] -= largerSpan * 0.015;
-            params[4] = largerSpan;
+            jsParams.span = jsParams.span * 1.03;
+            jsParams.left -= jsParams.span * 0.015;
+            jsParams.top -= jsParams.span * 0.015;
             break;
         case "ArrowUp":
-            params[5] = params[5] * 1.1;
+            params[8] = params[8] * 1.1;
             break;
         case "ArrowDown":
-            params[5] = params[5] * 0.9;
+            params[8] = params[8] * 0.9;
             break;
     }
+
+    const newLeft = split64(jsParams.left)
+    params[2] = newLeft.high
+    params[3] = newLeft.low
+
+    const newTop = split64(jsParams.top)
+    params[4] = newTop.high
+    params[5] = newTop.low
+
+    const newSpan = split64(jsParams.span)
+    params[6] = newSpan.high
+    params[7] = newSpan.low
+
     device.queue.writeBuffer(uniformBuffer, 0, params);
     render();
 })

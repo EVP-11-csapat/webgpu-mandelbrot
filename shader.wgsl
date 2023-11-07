@@ -5,8 +5,10 @@ struct Params{
     left_lo : f32,
     top_hi : f32,
     top_lo : f32,
-    span_hi : f32,
-    span_lo : f32,
+    h_span_hi : f32,
+    h_span_lo : f32,
+    v_span_hi : f32,
+    v_span_lo : f32,
     maxIterations : f32
 }
 
@@ -20,9 +22,13 @@ fn vertexMain(@location(0) pos: vec2f) -> @builtin(position) vec4f {
 @fragment
 fn fragmentMain(@builtin(position) pixelPosition: vec4f) -> @location(0) vec4f {
 
-    var span : fp64;
-    span.high = params.span_hi;
-    span.low = params.span_lo;
+    var v_span : fp64;
+    v_span.high = params.v_span_hi;
+    v_span.low = params.v_span_lo;
+
+    var h_span : fp64;
+    h_span.high = params.h_span_hi;
+    h_span.low = params.h_span_lo;
 
     var left : fp64;
     left.high = params.left_hi;
@@ -32,8 +38,8 @@ fn fragmentMain(@builtin(position) pixelPosition: vec4f) -> @location(0) vec4f {
     top.high = params.top_hi;
     top.low = params.top_lo;
 
-    var posX : fp64 = sum64(mul64(twoProd(pixelPosition.x, 1.0 / params.canvasWidth), span), left);
-    var posY : fp64 = sum64(mul64(twoProd(pixelPosition.y, 1.0 / params.canvasHeight), span), top);
+    var posX : fp64 = sum64(mul64(twoProd(pixelPosition.x, 1.0 / params.canvasWidth), h_span), left);
+    var posY : fp64 = sum64(mul64(twoProd(pixelPosition.y, 1.0 / params.canvasHeight), v_span), top);
 
     var cX : fp64 = posX;
     var cY : fp64 = posY;

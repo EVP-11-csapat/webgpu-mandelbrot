@@ -1,5 +1,5 @@
 const canvas = document.querySelector("canvas");
-canvas.width = window.innerHeight
+canvas.width = window.innerWidth
 canvas.height = window.innerHeight
 
 if (!navigator.gpu) {
@@ -49,14 +49,15 @@ const vertexBufferLayout = {
 };
 
 const jsParams = {
-    left: -2.0,
-    top: -1.5,
-    span: 3.0
+    centerX : -0.5,
+    centerY : 0,
+    span : 5,
+    aspect : canvas.height / canvas.width
 }
 
 const params = new Float32Array([
     canvas.width, canvas.height,
-    -2.0, 0, -1.5, 0, 3.0, 0,
+    jsParams.centerX - (.5 * jsParams.span), 0, jsParams.centerY - (.5 * jsParams.span * jsParams.aspect), 0, jsParams.span, 0,  jsParams.span * jsParams.aspect, 0,
     255.0
 ])
 
@@ -134,57 +135,61 @@ function split64(a) {
 window.addEventListener('keydown', (event) => {
     switch (event.code) {
         case "KeyA":
-            jsParams.left -= jsParams.span * 0.02
+            jsParams.centerX -= jsParams.span * 0.02
             break;
         case "KeyD":
-            jsParams.left += jsParams.span * 0.02
+            jsParams.centerX += jsParams.span * 0.02
             break;
         case "KeyW":
-            jsParams.top -= jsParams.span * 0.02
+            jsParams.centerY -= jsParams.span * 0.02
             break;
         case "KeyS":
-            jsParams.top += jsParams.span * 0.02
+            jsParams.centerY += jsParams.span * 0.02
             break;
         case "KeyE":
             jsParams.span = jsParams.span * 0.97;
-            jsParams.left += jsParams.span * 0.015;
-            jsParams.top += jsParams.span * 0.015;
             break;
         case "KeyQ":
             jsParams.span = jsParams.span * 1.03;
-            jsParams.left -= jsParams.span * 0.015;
-            jsParams.top -= jsParams.span * 0.015;
             break;
         case "ArrowUp":
-            params[8] = params[8] * 1.1;
+            params[10] = params[10] * 1.1;
             break;
         case "ArrowDown":
-            params[8] = params[8] * 0.9;
+            params[10] = params[10] * 0.9;
             break;
     }
 
-    const newLeft = split64(jsParams.left)
+    const newLeft = split64(jsParams.centerX - (.5 * jsParams.span))
     params[2] = newLeft.high
     params[3] = newLeft.low
 
-    const newTop = split64(jsParams.top)
+    const newTop = split64(jsParams.centerY - (.5 * jsParams.span * jsParams.aspect))
     params[4] = newTop.high
     params[5] = newTop.low
 
-    const newSpan = split64(jsParams.span)
-    params[6] = newSpan.high
-    params[7] = newSpan.low
+    const hSpan = split64(jsParams.span)
+    params[6] = hSpan.high
+    params[7] = hSpan.low
+
+    const vSpan = split64(jsParams.span * jsParams.aspect)
+    params[8] = vSpan.high
+    params[9] = vSpan.low
+
+
 
     device.queue.writeBuffer(uniformBuffer, 0, params)
     render()
 })
 
 addEventListener("resize", (event) => {
-    canvas.width = window.innerHeight
+    canvas.width = window.innerWidth
     canvas.height = window.innerHeight
 
     params[0] = canvas.width
     params[1] = canvas.height
+
+    jsParams.aspect = canvas.height / canvas.width
 
     device.queue.writeBuffer(uniformBuffer, 0, params)
     render()

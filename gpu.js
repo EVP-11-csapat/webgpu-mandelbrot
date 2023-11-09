@@ -110,6 +110,8 @@ const renderPassDescriptor = {
 };
 
 function render() {
+    device.queue.writeBuffer(uniformBuffer, 0, params)
+
     renderPassDescriptor.colorAttachments[0].view = context.getCurrentTexture().createView();
 
     const encoder = device.createCommandEncoder();
@@ -130,6 +132,24 @@ function split64(a) {
     const low = a - high
 
     return { low: low, high: high };
+}
+
+function updateBuffer(){
+    const newLeft = split64(jsParams.centerX - (.5 * jsParams.span))
+    params[2] = newLeft.high
+    params[3] = newLeft.low
+
+    const newTop = split64(jsParams.centerY - (.5 * jsParams.span * jsParams.aspect))
+    params[4] = newTop.high
+    params[5] = newTop.low
+
+    const hSpan = split64(jsParams.span)
+    params[6] = hSpan.high
+    params[7] = hSpan.low
+
+    const vSpan = split64(jsParams.span * jsParams.aspect)
+    params[8] = vSpan.high
+    params[9] = vSpan.low
 }
 
 window.addEventListener('keydown', (event) => {
@@ -160,29 +180,22 @@ window.addEventListener('keydown', (event) => {
             break;
     }
 
-    const newLeft = split64(jsParams.centerX - (.5 * jsParams.span))
-    params[2] = newLeft.high
-    params[3] = newLeft.low
-
-    const newTop = split64(jsParams.centerY - (.5 * jsParams.span * jsParams.aspect))
-    params[4] = newTop.high
-    params[5] = newTop.low
-
-    const hSpan = split64(jsParams.span)
-    params[6] = hSpan.high
-    params[7] = hSpan.low
-
-    const vSpan = split64(jsParams.span * jsParams.aspect)
-    params[8] = vSpan.high
-    params[9] = vSpan.low
-
-
-
-    device.queue.writeBuffer(uniformBuffer, 0, params)
-    render()
+    updateBuffer();
+    render();
 })
 
-addEventListener("resize", (event) => {
+window.addEventListener("click", (e)=>{
+    const mouseX = (e.clientX / canvas.width - 0.5) * jsParams.span
+    const mouseY =( e.clientY / canvas.height - 0.5) * jsParams.span * jsParams.aspect
+
+    jsParams.centerX += mouseX
+    jsParams.centerY += mouseY
+
+    updateBuffer();
+    render();
+})
+
+window.addEventListener("resize", (event) => {
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
 
@@ -191,8 +204,8 @@ addEventListener("resize", (event) => {
 
     jsParams.aspect = canvas.height / canvas.width
 
-    device.queue.writeBuffer(uniformBuffer, 0, params)
-    render()
+    updateBuffer();
+    render();
 });
 
 render();

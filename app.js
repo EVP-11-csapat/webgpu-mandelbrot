@@ -176,7 +176,7 @@ window.addEventListener("click", (e)=>{
     updateBuffer();
 })
 
-window.addEventListener("resize", (event) => {
+window.addEventListener("resize", () => {
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
 

@@ -1,16 +1,27 @@
 <!DOCTYPE html>
-
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1" />
-        <title>WebGPU Mandelbrot set</title>
-        <link rel="icon" href="favicon.ico" sizes="any">
-    </head>
-    <body style="margin: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; background-color: black">
-        <canvas width="1000" height="1000"></canvas>
-<!--        <h1 id="fps">0</h1>-->
-<!--        <div style="background-color: blue; width: 0.5rem; height: 0.5rem; border-radius: 0.5rem; position: absolute; left: 50%; top: 50%; transform: translateX(-50%) translateY(-50%);"></div>-->
-        <script type="module" src="gpu.js"></script>
-    </body>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=0" />
+    <title>WebGPU Mandelbrot set</title>
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body
+    style="margin: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; background-color: black">
+    <canvas width="1000" height="1000"></canvas>
+    <div class="absolute left-0 top-0 w-full lg:bottom-0 lg:top-auto lg:w-auto z-20
+              rounded-tr-xl
+              p-4 bg-black/80 text-white font-mono text-lg ">
+        <div class="flex flex-row justify-between gap-4">
+            <p>Framerate</p>
+            <p><b id="framerate">60</b> FPS</p>
+        </div>
+        <div class="flex flex-row justify-between gap-4">
+            <p>Frametime</p>
+            <p><b id="frametime">0</b> &nbsp;ms</p>
+        </div>
+    </div>
+    <script type="module" src="app.js"></script>
+</body>
 </html>

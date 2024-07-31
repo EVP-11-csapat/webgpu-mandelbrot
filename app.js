@@ -109,23 +109,6 @@ const renderPassDescriptor = {
     ],
 };
 
-function render() {
-    device.queue.writeBuffer(uniformBuffer, 0, params)
-
-    renderPassDescriptor.colorAttachments[0].view = context.getCurrentTexture().createView();
-
-    const encoder = device.createCommandEncoder();
-    const pass = encoder.beginRenderPass(renderPassDescriptor);
-
-    pass.setPipeline(cellPipeline);
-    pass.setVertexBuffer(0, vertexBuffer);
-    pass.setBindGroup(0, bindGroup);
-    pass.draw(vertices.length / 2);
-    pass.end();
-    const commandBuffer = encoder.finish();
-    device.queue.submit([commandBuffer]);
-}
-
 function split64(a) {
 
     const high = Math.fround(a)
@@ -181,7 +164,6 @@ window.addEventListener('keydown', (event) => {
     }
 
     updateBuffer();
-    render();
 })
 
 window.addEventListener("click", (e)=>{
@@ -192,7 +174,6 @@ window.addEventListener("click", (e)=>{
     jsParams.centerY += mouseY
 
     updateBuffer();
-    render();
 })
 
 window.addEventListener("resize", (event) => {
@@ -205,7 +186,37 @@ window.addEventListener("resize", (event) => {
     jsParams.aspect = canvas.height / canvas.width
 
     updateBuffer();
-    render();
 });
 
-render();
+const framerateElem = document.getElementById("framerate");
+const frameTimeElem = document.getElementById("frametime");
+
+let prevTime = performance.now();
+
+const render = async (time) => {
+    const frameTime = time - prevTime;
+    frameTimeElem.innerHTML = frameTime.toFixed(0).toLocaleString("FR");
+    const framerate = 1000 / frameTime;
+    framerateElem.innerHTML = framerate.toFixed(0);
+    prevTime = time;
+   
+    renderPassDescriptor.colorAttachments[0].view = context.getCurrentTexture().createView();
+    
+    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+
+    pass.setPipeline(cellPipeline);
+    pass.setVertexBuffer(0, vertexBuffer);
+    pass.setBindGroup(0, bindGroup);
+
+    device.queue.writeBuffer(uniformBuffer, 0, params)
+
+    pass.draw(vertices.length / 2);
+    pass.end();
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+
+    requestAnimationFrame(render);
+};
+
+requestAnimationFrame(render);
